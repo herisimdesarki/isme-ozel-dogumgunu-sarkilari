@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -12,10 +12,8 @@
   <input type="text" id="search" placeholder="İsmini yaz..." autocomplete="off" />
   <ul id="results"></ul>
 
-  <div id="player" style="margin-top:16px;"></div>
-
-  <!-- Paylaş Butonları -->
-  <div id="share" style="margin-top:12px; display:none;">
+  <!-- Paylaş butonları (önce gizli) -->
+  <div id="share" style="margin-top:8px; display:none;">
     <p>Paylaş:</p>
     <a id="share-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a> |
     <a id="share-facebook" href="#" target="_blank" rel="noopener">Facebook</a> |
@@ -24,55 +22,17 @@
     <button onclick="copyLink()">🔗 Kopyala</button>
   </div>
 
+  <div id="player" style="margin-top:16px;"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
   <script>
     let fuse, names = [];
     let currentUrl = "";
 
-    // Her türlü YouTube URL'inden 11 haneli video ID'sini yakala
-    function extractYouTubeId(raw) {
-      if (!raw) return "";
-      const u = String(raw).trim();
-
-      // En yaygın kalıplar:
-      // youtu.be/ID
-      let m = u.match(/(?:youtu\.be\/)([A-Za-z0-9_-]{11})/);
-      if (m && m[1]) return m[1];
-
-      // v=ID (watch?v=ID)
-      m = u.match(/[?&]v=([A-Za-z0-9_-]{11})/);
-      if (m && m[1]) return m[1];
-
-      // /shorts/ID
-      m = u.match(/\/shorts\/([A-Za-z0-9_-]{11})/);
-      if (m && m[1]) return m[1];
-
-      // /embed/ID
-      m = u.match(/\/embed\/([A-Za-z0-9_-]{11})/);
-      if (m && m[1]) return m[1];
-
-      // Son çare: 11 haneli ID gibi görünen ilk parça
-      m = u.match(/([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])/);
-      if (m && m[1]) return m[1];
-
-      return "";
-    }
-
-    function toEmbed(u) {
-      const id = extractYouTubeId(u);
-      return id ? `https://www.youtube.com/embed/${id}` : "";
-    }
-
     async function loadNames() {
       try {
         const res = await fetch('names.json', { cache: 'no-store' });
         names = await res.json();
-
-        // Eski ve yeni alan adlarını normalize edelim
-        names = names.map(n => ({
-          name: n.name || n.ad || "",
-          youtube_url: n.youtube_url || n.youtube || n.link || ""
-        }));
 
         fuse = new Fuse(names, {
           keys: ['name'],
@@ -84,6 +44,73 @@
       } catch (e) {
         console.error('names.json yüklenemedi:', e);
       }
+    }
+
+    function toEmbed(url) {
+      if (!url) return "";
+      try {
+        if (url.includes("youtube.com/shorts/")) {
+          const id = url.split("/shorts/")[1].split(/[?&]/)[0];
+          return `https://www.youtube.com/embed/${id}`;
+        } else if (url.includes("youtu.be/")) {
+          const id = url.split("youtu.be/")[1].split(/[?&]/)[0];
+          return `https://www.youtube.com/embed/${id}`;
+        } else if (url.includes("watch?v=")) {
+          const id = new URL(url).searchParams.get("v");
+          return `https://www.youtube.com/embed/${id}`;
+        }
+      } catch (e) {
+        console.warn("Embed parse hatası:", e);
+      }
+      return "";
+    }
+
+    function showShareButtons(url, name) {
+      const encUrl = encodeURIComponent(url);
+      const encText = encodeURIComponent(`🎂 ${name} için doğum günü şarkısı:`);
+
+      document.getElementById("share-whatsapp").href =
+        `https://api.whatsapp.com/send?text=${encText}%20${encUrl}`;
+      document.getElementById("share-facebook").href =
+        `https://www.facebook.com/sharer/sharer.php?u=${encUrl}`;
+      document.getElementById("share-twitter").href =
+        `https://twitter.com/intent/tweet?text=${encText}&url=${encUrl}`;
+    }
+
+    function copyLink() {
+      if (!currentUrl) return;
+      navigator.clipboard.writeText(currentUrl).then(() => {
+        alert("🔗 Link kopyalandı!");
+      });
+    }
+
+    function shareInstagram() {
+      alert("📷 Instagram doğrudan link paylaşımı desteklemiyor. Lütfen kopyaladığınız linki Instagram DM veya hikayede yapıştırın.");
+    }
+
+    function playItem(item) {
+      currentUrl = String(item.youtube_url || "").trim();
+      const embed = toEmbed(currentUrl);
+
+      if (!embed) {
+        document.getElementById('player').innerHTML =
+          `<div style="color:#b00">Bu link gömülemedi. <a href="${currentUrl}" target="_blank" rel="noopener">YouTube'da aç</a>.</div>`;
+        document.getElementById('share').style.display = currentUrl ? 'block' : 'none';
+        return;
+      }
+
+      // paylaş linklerini hazırla
+      showShareButtons(currentUrl, item.name);
+
+      // player embed
+      document.getElementById('player').innerHTML =
+        `<iframe width="560" height="315" src="${embed}" 
+           title="${item.name}" frameborder="0"
+           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+           allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+
+      // paylaş çubuğunu göster
+      document.getElementById('share').style.display = 'block';
     }
 
     function renderResults(items) {
@@ -105,30 +132,6 @@
         li.onclick = () => playItem(item);
         ul.appendChild(li);
       });
-    }
-
-    function playItem(item) {
-      currentUrl = String(item.youtube_url || "").trim();
-      const embed = toEmbed(currentUrl);
-
-      if (!embed) {
-        document.getElementById('player').innerHTML =
-          `<div style="color:#b00">Bu link gömülemedi. <a href="${currentUrl}" target="_blank" rel="noopener">YouTube'da aç</a>.</div>`;
-        document.getElementById('share').style.display = currentUrl ? 'block' : 'none';
-        return;
-      }
-
-      document.getElementById('player').innerHTML =
-        `<iframe width="560" height="315" src="${embed}"
-           title="${item.name}" frameborder="0"
-           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-           allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
-
-      // paylaşımları hazırla
-      showShareButtons(currentUrl, item.name);
-
-      // oynatıcıya kaydır
-      document.getElementById('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     let tId;
@@ -154,29 +157,6 @@
         const result = fuse.search(q, { limit: 1 });
         if (result.length) playItem(result[0].item);
       }
-    }
-
-    function showShareButtons(url, name) {
-      const share = document.getElementById('share');
-      share.style.display = 'block';
-      document.getElementById('share-whatsapp').href =
-        `https://api.whatsapp.com/send?text=🎂 ${encodeURIComponent(name)} için doğum günü şarkısı: ${encodeURIComponent(url)}`;
-      document.getElementById('share-facebook').href =
-        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-      document.getElementById('share-twitter').href =
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent('🎂 ' + name + ' için doğum günü şarkısı')}&url=${encodeURIComponent(url)}`;
-    }
-
-    function copyLink() {
-      if (!currentUrl) return;
-      navigator.clipboard.writeText(currentUrl);
-      alert("Link panoya kopyalandı ✅");
-    }
-
-    function shareInstagram() {
-      if (!currentUrl) return;
-      navigator.clipboard.writeText(currentUrl);
-      alert("📷 Link panoya kopyalandı. Instagram’da DM veya hikâyeye yapıştırabilirsin.");
     }
 
     document.getElementById('search').addEventListener('input', onSearchInput);
