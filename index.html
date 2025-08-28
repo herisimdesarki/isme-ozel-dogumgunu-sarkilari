@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -17,10 +17,10 @@
   <!-- Paylaş Butonları -->
   <div id="share" style="margin-top:12px; display:none;">
     <p>Paylaş:</p>
-    <a id="share-whatsapp" href="#" target="_blank">WhatsApp</a> | 
-    <a id="share-facebook" href="#" target="_blank">Facebook</a> | 
-    <a id="share-twitter" href="#" target="_blank">X (Twitter)</a> | 
-    <a href="#" onclick="shareInstagram()">Instagram</a> | 
+    <a id="share-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a> |
+    <a id="share-facebook" href="#" target="_blank" rel="noopener">Facebook</a> |
+    <a id="share-twitter" href="#" target="_blank" rel="noopener">X (Twitter)</a> |
+    <a href="#" onclick="shareInstagram()">Instagram</a> |
     <button onclick="copyLink()">🔗 Kopyala</button>
   </div>
 
@@ -28,6 +28,31 @@
   <script>
     let fuse, names = [];
     let currentUrl = "";
+
+    // Her türlü YouTube URL'sini embed URL'sine çevirir
+    function toEmbed(u) {
+      try {
+        const url = new URL(u.trim());
+        const host = url.hostname;
+        let id = "";
+
+        if (host.includes("youtu.be")) {
+          id = url.pathname.slice(1);
+        } else if (host.includes("youtube.com")) {
+          if (url.pathname.startsWith("/watch")) {
+            id = url.searchParams.get("v") || "";
+          } else if (url.pathname.startsWith("/shorts/")) {
+            id = url.pathname.split("/")[2] || "";
+          } else if (url.pathname.startsWith("/embed/")) {
+            id = url.pathname.split("/")[2] || "";
+          }
+        }
+        id = (id || "").split("?")[0];
+        return id ? `https://www.youtube.com/embed/${id}` : u.trim();
+      } catch (e) {
+        return u;
+      }
+    }
 
     async function loadNames() {
       try {
@@ -62,17 +87,20 @@
         const li = document.createElement('li');
         li.textContent = item.name;
         li.style.cursor = 'pointer';
-        li.onclick = () => {
-          currentUrl = item.youtube_url;
-          document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${currentUrl}" 
-               title="${item.name}" frameborder="0" 
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-               allowfullscreen></iframe>`;
-          showShareButtons(currentUrl, item.name);
-        };
+        li.onclick = () => playItem(item);
         ul.appendChild(li);
       });
+    }
+
+    function playItem(item) {
+      currentUrl = (item.youtube_url || item.youtube || "").trim();
+      const embed = toEmbed(currentUrl);
+      document.getElementById('player').innerHTML =
+        `<iframe width="560" height="315" src="${embed}"
+           title="${item.name}" frameborder="0"
+           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+           allowfullscreen></iframe>`;
+      showShareButtons(currentUrl, item.name);
     }
 
     let tId;
@@ -96,35 +124,28 @@
         const q = e.target.value.trim();
         if (!q) return;
         const result = fuse.search(q, { limit: 1 });
-        if (result.length) {
-          const first = result[0].item;
-          currentUrl = first.youtube_url;
-          document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${currentUrl}" 
-               title="${first.name}" frameborder="0" 
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-               allowfullscreen></iframe>`;
-          showShareButtons(currentUrl, first.name);
-        }
+        if (result.length) playItem(result[0].item);
       }
     }
 
     function showShareButtons(url, name) {
       document.getElementById('share').style.display = 'block';
       document.getElementById('share-whatsapp').href =
-        `https://api.whatsapp.com/send?text=🎂 ${name} için doğum günü şarkısı: ${url}`;
+        `https://api.whatsapp.com/send?text=🎂 ${encodeURIComponent(name)} için doğum günü şarkısı: ${encodeURIComponent(url)}`;
       document.getElementById('share-facebook').href =
         `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
       document.getElementById('share-twitter').href =
-        `https://twitter.com/intent/tweet?text=🎂 ${name} için doğum günü şarkısı&url=${encodeURIComponent(url)}`;
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent('🎂 ' + name + ' için doğum günü şarkısı')}&url=${encodeURIComponent(url)}`;
     }
 
     function copyLink() {
+      if (!currentUrl) return;
       navigator.clipboard.writeText(currentUrl);
       alert("Link panoya kopyalandı ✅");
     }
 
     function shareInstagram() {
+      if (!currentUrl) return;
       navigator.clipboard.writeText(currentUrl);
       alert("📷 Link panoya kopyalandı. Instagram’da DM veya hikâyeye yapıştırabilirsin.");
     }
