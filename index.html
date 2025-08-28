@@ -54,7 +54,7 @@
         li.style.cursor = 'pointer';
         li.onclick = () => {
           document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${item.youtube}" 
+            `<iframe width="560" height="315" src="${item.youtube_url}" 
                title="${item.name}" frameborder="0" 
                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                allowfullscreen></iframe>`;
@@ -86,7 +86,7 @@
         if (result.length) {
           const first = result[0].item;
           document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${first.youtube}" 
+            `<iframe width="560" height="315" src="${first.youtube_url}" 
                title="${first.name}" frameborder="0" 
                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                allowfullscreen></iframe>`;
