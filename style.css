@@ -1,23 +1,89 @@
+/* Genel gövde */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  margin: 0;
+  padding: 0;
   text-align: center;
-  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Başlık */
+h1 {
+  margin-top: 30px;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+/* Arama kutusu */
 #search {
-  padding: 10px;
+  padding: 12px 16px;
   width: 80%;
   max-width: 400px;
-  margin-bottom: 20px;
+  margin: 20px auto;
+  border: 2px solid #ff7e5f;
+  border-radius: 25px;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
+/* Sonuç listesi */
 #results {
   list-style: none;
   padding: 0;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 500px;
 }
+
 #results li {
+  background: white;
+  margin: 8px 0;
+  padding: 12px 18px;
+  border-radius: 12px;
   cursor: pointer;
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #444;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
 #results li:hover {
-  background-color: #f0f0f0;
+  background: #ff9a8b;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Player alanı */
+#player {
+  margin: 20px auto;
+  max-width: 560px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Responsive ayarlar */
+iframe {
+  width: 100%;
+  height: 315px;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+  #search {
+    width: 90%;
+    font-size: 0.9rem;
+  }
+  #results li {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+  }
 }
