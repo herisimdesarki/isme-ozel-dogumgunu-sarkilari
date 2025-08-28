@@ -14,56 +14,25 @@
 
   <div id="player" style="margin-top:16px;"></div>
 
+  <!-- Paylaş Butonları -->
+  <div id="share" style="margin-top:12px; display:none;">
+    <p>Paylaş:</p>
+    <a id="share-whatsapp" href="#" target="_blank">WhatsApp</a> | 
+    <a id="share-facebook" href="#" target="_blank">Facebook</a> | 
+    <a id="share-twitter" href="#" target="_blank">X (Twitter)</a> | 
+    <a href="#" onclick="shareInstagram()">Instagram</a> | 
+    <button onclick="copyLink()">🔗 Kopyala</button>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
   <script>
     let fuse, names = [];
-
-    // YouTube url -> embed url dönüştür
-    function toEmbed(u) {
-      try {
-        if (!u) return "";
-        u = u.trim();
-
-        // Bazı Evernote kopyalarında boşluklar, parametreler olabiliyor
-        // youtu.be -> watch?v= normalleştir
-        if (u.includes("youtu.be/")) {
-          const id = u.split("youtu.be/")[1].split(/[?&]/)[0].trim();
-          return `https://www.youtube.com/embed/${id}`;
-        }
-
-        const url = new URL(u.replace("youtube.com/shorts/", "youtube.com/watch?v="));
-
-        // shorts veya watch?v=
-        let id = url.searchParams.get("v");
-        if (!id) {
-          // /embed/ID veya /shorts/ID gibi durumlar için path'ten al
-          const m = url.pathname.match(/\/(embed|shorts)\/([^/?#]+)/);
-          if (m) id = m[2];
-        }
-        if (!id) {
-          // Son çare: path'in son parçası
-          id = url.pathname.split("/").pop();
-        }
-        return `https://www.youtube.com/embed/${id}`;
-      } catch (e) {
-        console.warn("Embed'e çevrilemedi:", u, e);
-        return "";
-      }
-    }
+    let currentUrl = "";
 
     async function loadNames() {
       try {
         const res = await fetch('names.json', { cache: 'no-store' });
-        const raw = await res.json();
-
-        // JSON: [{ name, youtube_url }]
-        // veriyi normalize et + embed link hazırla
-        names = raw
-          .map(r => ({
-            name: (r.name || "").trim(),
-            embed: toEmbed(r.youtube_url)
-          }))
-          .filter(x => x.name && x.embed);
+        names = await res.json();
 
         fuse = new Fuse(names, {
           keys: ['name'],
@@ -94,11 +63,13 @@
         li.textContent = item.name;
         li.style.cursor = 'pointer';
         li.onclick = () => {
+          currentUrl = item.youtube_url;
           document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${item.embed}"
-               title="${item.name}" frameborder="0"
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            `<iframe width="560" height="315" src="${currentUrl}" 
+               title="${item.name}" frameborder="0" 
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                allowfullscreen></iframe>`;
+          showShareButtons(currentUrl, item.name);
         };
         ul.appendChild(li);
       });
@@ -112,6 +83,7 @@
         if (!q) {
           document.getElementById('results').innerHTML = '';
           document.getElementById('player').innerHTML = '';
+          document.getElementById('share').style.display = 'none';
           return;
         }
         const result = fuse.search(q, { limit: 10 });
@@ -126,13 +98,35 @@
         const result = fuse.search(q, { limit: 1 });
         if (result.length) {
           const first = result[0].item;
+          currentUrl = first.youtube_url;
           document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${first.embed}"
-               title="${first.name}" frameborder="0"
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            `<iframe width="560" height="315" src="${currentUrl}" 
+               title="${first.name}" frameborder="0" 
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                allowfullscreen></iframe>`;
+          showShareButtons(currentUrl, first.name);
         }
       }
+    }
+
+    function showShareButtons(url, name) {
+      document.getElementById('share').style.display = 'block';
+      document.getElementById('share-whatsapp').href =
+        `https://api.whatsapp.com/send?text=🎂 ${name} için doğum günü şarkısı: ${url}`;
+      document.getElementById('share-facebook').href =
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+      document.getElementById('share-twitter').href =
+        `https://twitter.com/intent/tweet?text=🎂 ${name} için doğum günü şarkısı&url=${encodeURIComponent(url)}`;
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(currentUrl);
+      alert("Link panoya kopyalandı ✅");
+    }
+
+    function shareInstagram() {
+      navigator.clipboard.writeText(currentUrl);
+      alert("📷 Link panoya kopyalandı. Instagram’da DM veya hikâyeye yapıştırabilirsin.");
     }
 
     document.getElementById('search').addEventListener('input', onSearchInput);
