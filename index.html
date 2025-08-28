@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -20,16 +20,43 @@
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
   <script>
     let fuse, names = [];
-    let currentVideoUrl = null;
+    let currentVideoUrl = null;     // orijinal (paylaşım için)
     const siteBase = location.href.replace(/#.*$/, '');
 
-    // Paylaşım linkleri ve ikonlar aynı, sadece video URL kısmını düzelttik
+    // --- YouTube URL normalizasyonu (embed için) ---
+    function toEmbedUrl(url) {
+      if (!url) return null;
+      url = url.trim();
+
+      // Zaten embed ise
+      if (/youtube\.com\/embed\//.test(url)) return url;
+
+      // youtu.be/VIDEO
+      let m = url.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);
+      if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;
+
+      // youtube.com/shorts/VIDEO
+      m = url.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/);
+      if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;
+
+      // youtube.com/watch?v=VIDEO (v parametresi)
+      m = url.match(/[?&]v=([A-Za-z0-9_-]{6,})/);
+      if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;
+
+      // Başka varyasyonlar için son çare: ID gibi görünen son segmenti dener
+      m = url.match(/([A-Za-z0-9_-]{6,})$/);
+      if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;
+
+      return null;
+    }
+
+    // Paylaş barı
     function buildShareBar() {
       const wrap = document.getElementById('share');
       wrap.innerHTML = `
         <a id="share-wa" class="btn wa" target="_blank">WhatsApp</a>
         <a id="share-fb" class="btn fb" target="_blank">Facebook</a>
-        <a id="share-x" class="btn x" target="_blank">X (Twitter)</a>
+        <a id="share-x"  class="btn x"  target="_blank">X (Twitter)</a>
         <a id="share-ig" class="btn ig" target="_blank">Instagram</a>
         <a id="share-cp" class="btn copy">Kopyala</a>
       `;
@@ -74,12 +101,18 @@
     }
 
     function play(item) {
-      currentVideoUrl = item.youtube_url;   // ✅ DOĞRU ALAN
-      document.getElementById('player').innerHTML =
-        `<iframe width="560" height="315" src="${item.youtube_url}" 
-           title="${item.name}" frameborder="0" 
-           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-           allowfullscreen></iframe>`;
+      currentVideoUrl = item.youtube_url;              // paylaşımda orijinal URL
+      const embed = toEmbedUrl(item.youtube_url);      // iframe için dönüştür
+      const player = document.getElementById('player');
+      if (embed) {
+        player.innerHTML =
+          `<iframe width="560" height="315" src="${embed}"
+             title="${item.name}" frameborder="0"
+             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+             allowfullscreen></iframe>`;
+      } else {
+        player.innerHTML = `<p style="color:#b00">Video URL’si geçersiz görünüyor.</p>`;
+      }
       updateShareLinks();
     }
 
