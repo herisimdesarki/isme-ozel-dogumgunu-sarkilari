@@ -4,7 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
+  <style>
+    .share-buttons {
+      margin: 10px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .share-buttons a, .share-buttons button {
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .whatsapp { background-color: #25D366; }
+    .facebook { background-color: #1877F2; }
+    .twitter  { background-color: #000000; }
+    .instagram {
+      background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+    }
+    .copy { background-color: #666; }
+  </style>
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -13,13 +41,14 @@
   <ul id="results"></ul>
 
   <!-- Paylaş butonları (önce gizli) -->
-  <div id="share" style="margin-top:8px; display:none;">
-    <p>Paylaş:</p>
-    <a id="share-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a> |
-    <a id="share-facebook" href="#" target="_blank" rel="noopener">Facebook</a> |
-    <a id="share-twitter" href="#" target="_blank" rel="noopener">X (Twitter)</a> |
-    <a href="#" onclick="shareInstagram()">Instagram</a> |
-    <button onclick="copyLink()">🔗 Kopyala</button>
+  <div id="share" style="display:none;">
+    <div class="share-buttons">
+      <a id="share-whatsapp" class="whatsapp" target="_blank" rel="noopener">📱 WhatsApp</a>
+      <a id="share-facebook" class="facebook" target="_blank" rel="noopener">📘 Facebook</a>
+      <a id="share-twitter" class="twitter" target="_blank" rel="noopener">🐦 X</a>
+      <a href="#" class="instagram" onclick="shareInstagram()">📷 Instagram</a>
+      <button class="copy" onclick="copyLink()">🔗 Kopyala</button>
+    </div>
   </div>
 
   <div id="player" style="margin-top:16px;"></div>
@@ -85,7 +114,7 @@
     }
 
     function shareInstagram() {
-      alert("📷 Instagram doğrudan link paylaşımı desteklemiyor. Lütfen kopyaladığınız linki Instagram DM veya hikayede yapıştırın.");
+      alert("📷 Instagram doğrudan link paylaşımı desteklemiyor. Kopyaladığınız linki DM veya hikayede yapıştırabilirsiniz.");
     }
 
     function playItem(item) {
