@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -29,35 +29,50 @@
     let fuse, names = [];
     let currentUrl = "";
 
-    // Her türlü YouTube URL'sini embed URL'sine çevirir
-    function toEmbed(u) {
-      try {
-        const url = new URL(u.trim());
-        const host = url.hostname;
-        let id = "";
+    // Her türlü YouTube URL'inden 11 haneli video ID'sini yakala
+    function extractYouTubeId(raw) {
+      if (!raw) return "";
+      const u = String(raw).trim();
 
-        if (host.includes("youtu.be")) {
-          id = url.pathname.slice(1);
-        } else if (host.includes("youtube.com")) {
-          if (url.pathname.startsWith("/watch")) {
-            id = url.searchParams.get("v") || "";
-          } else if (url.pathname.startsWith("/shorts/")) {
-            id = url.pathname.split("/")[2] || "";
-          } else if (url.pathname.startsWith("/embed/")) {
-            id = url.pathname.split("/")[2] || "";
-          }
-        }
-        id = (id || "").split("?")[0];
-        return id ? `https://www.youtube.com/embed/${id}` : u.trim();
-      } catch (e) {
-        return u;
-      }
+      // En yaygın kalıplar:
+      // youtu.be/ID
+      let m = u.match(/(?:youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      if (m && m[1]) return m[1];
+
+      // v=ID (watch?v=ID)
+      m = u.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+      if (m && m[1]) return m[1];
+
+      // /shorts/ID
+      m = u.match(/\/shorts\/([A-Za-z0-9_-]{11})/);
+      if (m && m[1]) return m[1];
+
+      // /embed/ID
+      m = u.match(/\/embed\/([A-Za-z0-9_-]{11})/);
+      if (m && m[1]) return m[1];
+
+      // Son çare: 11 haneli ID gibi görünen ilk parça
+      m = u.match(/([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])/);
+      if (m && m[1]) return m[1];
+
+      return "";
+    }
+
+    function toEmbed(u) {
+      const id = extractYouTubeId(u);
+      return id ? `https://www.youtube.com/embed/${id}` : "";
     }
 
     async function loadNames() {
       try {
         const res = await fetch('names.json', { cache: 'no-store' });
         names = await res.json();
+
+        // Eski ve yeni alan adlarını normalize edelim
+        names = names.map(n => ({
+          name: n.name || n.ad || "",
+          youtube_url: n.youtube_url || n.youtube || n.link || ""
+        }));
 
         fuse = new Fuse(names, {
           keys: ['name'],
@@ -93,14 +108,27 @@
     }
 
     function playItem(item) {
-      currentUrl = (item.youtube_url || item.youtube || "").trim();
+      currentUrl = String(item.youtube_url || "").trim();
       const embed = toEmbed(currentUrl);
+
+      if (!embed) {
+        document.getElementById('player').innerHTML =
+          `<div style="color:#b00">Bu link gömülemedi. <a href="${currentUrl}" target="_blank" rel="noopener">YouTube'da aç</a>.</div>`;
+        document.getElementById('share').style.display = currentUrl ? 'block' : 'none';
+        return;
+      }
+
       document.getElementById('player').innerHTML =
         `<iframe width="560" height="315" src="${embed}"
            title="${item.name}" frameborder="0"
            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-           allowfullscreen></iframe>`;
+           allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+
+      // paylaşımları hazırla
       showShareButtons(currentUrl, item.name);
+
+      // oynatıcıya kaydır
+      document.getElementById('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     let tId;
@@ -129,7 +157,8 @@
     }
 
     function showShareButtons(url, name) {
-      document.getElementById('share').style.display = 'block';
+      const share = document.getElementById('share');
+      share.style.display = 'block';
       document.getElementById('share-whatsapp').href =
         `https://api.whatsapp.com/send?text=🎂 ${encodeURIComponent(name)} için doğum günü şarkısı: ${encodeURIComponent(url)}`;
       document.getElementById('share-facebook').href =
