@@ -1,50 +1,105 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
-  <input type="text" id="search" placeholder="İsmini yaz...">
+
+  <input type="text" id="search" placeholder="İsmini yaz..." autocomplete="off" />
   <ul id="results"></ul>
 
-  <div id="player"></div>
+  <div id="player" style="margin-top:16px;"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
   <script>
-    let fuse, names;
+    let fuse, names = [];
+
     async function loadNames() {
-      const res = await fetch('names.json');
-      names = await res.json();
-      fuse = new Fuse(names, { keys: ['name'], threshold: 0.3 });
+      try {
+        const res = await fetch('names.json', { cache: 'no-store' });
+        names = await res.json();
+
+        // Fuse ayarları: büyük/küçük harf duyarsız + toleranslı arama
+        fuse = new Fuse(names, {
+          keys: ['name'],
+          threshold: 0.3,
+          ignoreLocation: true,
+          isCaseSensitive: false,
+          distance: 100
+        });
+      } catch (e) {
+        console.error('names.json yüklenemedi:', e);
+      }
     }
 
-    function showResults(list) {
-      const resultsEl = document.getElementById('results');
-      resultsEl.innerHTML = '';
-      list.forEach(item => {
+    function renderResults(items) {
+      const ul = document.getElementById('results');
+      ul.innerHTML = '';
+
+      if (!items || items.length === 0) {
         const li = document.createElement('li');
-        li.textContent = item.item.name;
+        li.textContent = 'Sonuç bulunamadı';
+        li.style.color = '#666';
+        ul.appendChild(li);
+        return;
+      }
+
+      items.forEach(({ item }) => {
+        const li = document.createElement('li');
+        li.textContent = item.name;
+        li.style.cursor = 'pointer';
         li.onclick = () => {
           document.getElementById('player').innerHTML =
-            `<iframe width="300" height="169" src="${item.item.youtube}" frameborder="0" allowfullscreen></iframe>`;
+            `<iframe width="560" height="315" src="${item.youtube}" 
+               title="${item.name}" frameborder="0" 
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+               allowfullscreen></iframe>`;
+          // seçim yapıldıktan sonra listeyi boşaltmak istersen:
+          // document.getElementById('results').innerHTML = '';
         };
-        resultsEl.appendChild(li);
+        ul.appendChild(li);
       });
     }
 
-    document.getElementById('search').addEventListener('input', e => {
-      const val = e.target.value;
-      if (val.length > 0) {
-        const result = fuse.search(val);
-        showResults(result);
-      } else {
-        document.getElementById('results').innerHTML = '';
-        document.getElementById('player').innerHTML = '';
+    // Basit debounce
+    let tId;
+    function onSearchInput(e) {
+      const q = e.target.value.trim();
+      clearTimeout(tId);
+      tId = setTimeout(() => {
+        if (!q) {
+          document.getElementById('results').innerHTML = '';
+          document.getElementById('player').innerHTML = '';
+          return;
+        }
+        const result = fuse.search(q, { limit: 10 });
+        renderResults(result);
+      }, 120);
+    }
+
+    // Enter ile ilk sonucu oynat
+    function onSearchEnter(e) {
+      if (e.key === 'Enter') {
+        const q = e.target.value.trim();
+        if (!q) return;
+        const result = fuse.search(q, { limit: 1 });
+        if (result.length) {
+          const first = result[0].item;
+          document.getElementById('player').innerHTML =
+            `<iframe width="560" height="315" src="${first.youtube}" 
+               title="${first.name}" frameborder="0" 
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+               allowfullscreen></iframe>`;
+        }
       }
-    });
+    }
+
+    document.getElementById('search').addEventListener('input', onSearchInput);
+    document.getElementById('search').addEventListener('keydown', onSearchEnter);
 
     loadNames();
   </script>
