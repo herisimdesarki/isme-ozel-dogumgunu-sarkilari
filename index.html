@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <link rel="stylesheet" href="style.css" />
+  <!-- CSS cache-bust -->
+  <link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -23,7 +24,6 @@
         const res = await fetch('names.json', { cache: 'no-store' });
         names = await res.json();
 
-        // Fuse ayarları: büyük/küçük harf duyarsız + toleranslı arama
         fuse = new Fuse(names, {
           keys: ['name'],
           threshold: 0.3,
@@ -58,14 +58,11 @@
                title="${item.name}" frameborder="0" 
                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                allowfullscreen></iframe>`;
-          // seçim yapıldıktan sonra listeyi boşaltmak istersen:
-          // document.getElementById('results').innerHTML = '';
         };
         ul.appendChild(li);
       });
     }
 
-    // Basit debounce
     let tId;
     function onSearchInput(e) {
       const q = e.target.value.trim();
@@ -81,7 +78,6 @@
       }, 120);
     }
 
-    // Enter ile ilk sonucu oynat
     function onSearchEnter(e) {
       if (e.key === 'Enter') {
         const q = e.target.value.trim();
