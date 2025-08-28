@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>İsme Özel Doğum Günü Şarkıları</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
+  <input type="text" id="search" placeholder="İsmini yaz...">
+  <ul id="results"></ul>
+
+  <div id="player"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+  <script>
+    let fuse, names;
+    async function loadNames() {
+      const res = await fetch('names.json');
+      names = await res.json();
+      fuse = new Fuse(names, { keys: ['name'], threshold: 0.3 });
+    }
+
+    function showResults(list) {
+      const resultsEl = document.getElementById('results');
+      resultsEl.innerHTML = '';
+      list.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.item.name;
+        li.onclick = () => {
+          document.getElementById('player').innerHTML =
+            `<iframe width="300" height="169" src="${item.item.youtube}" frameborder="0" allowfullscreen></iframe>`;
+        };
+        resultsEl.appendChild(li);
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', e => {
+      const val = e.target.value;
+      if (val.length > 0) {
+        const result = fuse.search(val);
+        showResults(result);
+      } else {
+        document.getElementById('results').innerHTML = '';
+        document.getElementById('player').innerHTML = '';
+      }
+    });
+
+    loadNames();
+  </script>
+</body>
+</html>
