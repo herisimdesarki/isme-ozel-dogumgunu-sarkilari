@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>İsme Özel Doğum Günü Şarkıları</title>
-  <!-- CSS cache-bust -->
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
   <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
@@ -19,10 +18,52 @@
   <script>
     let fuse, names = [];
 
+    // YouTube url -> embed url dönüştür
+    function toEmbed(u) {
+      try {
+        if (!u) return "";
+        u = u.trim();
+
+        // Bazı Evernote kopyalarında boşluklar, parametreler olabiliyor
+        // youtu.be -> watch?v= normalleştir
+        if (u.includes("youtu.be/")) {
+          const id = u.split("youtu.be/")[1].split(/[?&]/)[0].trim();
+          return `https://www.youtube.com/embed/${id}`;
+        }
+
+        const url = new URL(u.replace("youtube.com/shorts/", "youtube.com/watch?v="));
+
+        // shorts veya watch?v=
+        let id = url.searchParams.get("v");
+        if (!id) {
+          // /embed/ID veya /shorts/ID gibi durumlar için path'ten al
+          const m = url.pathname.match(/\/(embed|shorts)\/([^/?#]+)/);
+          if (m) id = m[2];
+        }
+        if (!id) {
+          // Son çare: path'in son parçası
+          id = url.pathname.split("/").pop();
+        }
+        return `https://www.youtube.com/embed/${id}`;
+      } catch (e) {
+        console.warn("Embed'e çevrilemedi:", u, e);
+        return "";
+      }
+    }
+
     async function loadNames() {
       try {
         const res = await fetch('names.json', { cache: 'no-store' });
-        names = await res.json();
+        const raw = await res.json();
+
+        // JSON: [{ name, youtube_url }]
+        // veriyi normalize et + embed link hazırla
+        names = raw
+          .map(r => ({
+            name: (r.name || "").trim(),
+            embed: toEmbed(r.youtube_url)
+          }))
+          .filter(x => x.name && x.embed);
 
         fuse = new Fuse(names, {
           keys: ['name'],
@@ -54,9 +95,9 @@
         li.style.cursor = 'pointer';
         li.onclick = () => {
           document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${item.youtube_url}" 
-               title="${item.name}" frameborder="0" 
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            `<iframe width="560" height="315" src="${item.embed}"
+               title="${item.name}" frameborder="0"
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                allowfullscreen></iframe>`;
         };
         ul.appendChild(li);
@@ -86,9 +127,9 @@
         if (result.length) {
           const first = result[0].item;
           document.getElementById('player').innerHTML =
-            `<iframe width="560" height="315" src="${first.youtube_url}" 
-               title="${first.name}" frameborder="0" 
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            `<iframe width="560" height="315" src="${first.embed}"
+               title="${first.name}" frameborder="0"
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                allowfullscreen></iframe>`;
         }
       }
