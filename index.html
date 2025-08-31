@@ -3,276 +3,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>İsme Özel Doğum Günü Şarkıları</title>
 
-  <title>İsme Özel Doğum Günü Şarkıları 🎂 | 200+ İsim</title>
-  <meta name="description" content="İsme özel doğum günü şarkıları! 200'den fazla isim için YouTube videoları. Arayın, dinleyin ve WhatsApp/Instagram/Facebook’ta paylaşın. 🎉" />
-  <meta name="keywords" content="doğum günü şarkısı, isimli doğum günü şarkısı, isme özel şarkı, iyi ki doğdun, isim şarkısı" />
-  <link rel="canonical" href="https://seninsiten.com/" />
-  <meta name="robots" content="index,follow" />
+  <!-- SEO -->
+  <meta name="description" content="İsmini yaz, sana özel doğum günü şarkısını bul, YouTube videosunu aç ve tek tıkla paylaş!" />
+  <link rel="canonical" href="https://herisimdesarki.github.io/isme-ozel-dogumgunu-sarkilari/" />
 
-  <!-- Open Graph / Twitter -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="İsme Özel Doğum Günü Şarkıları 🎂" />
-  <meta property="og:description" content="200+ isim için doğum günü şarkısı. Arayın, dinleyin ve tek tıkla paylaşın." />
-  <meta property="og:image" content="https://seninsiten.com/cover.png" />
-  <meta property="og:url" content="https://seninsiten.com/" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <!-- Stil -->
+  <link rel="stylesheet" href="style.css?v=5" />
 
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "MusicPlaylist",
-    "name": "İsme Özel Doğum Günü Şarkıları",
-    "description": "200+ isim için hazırlanmış özel doğum günü şarkıları. Dinleyin ve paylaşın!",
-    "numTracks": 230,
-    "publisher": { "@type": "Organization", "name": "Umut Ahmet", "url": "https://seninsiten.com" }
-  }
-  </script>
-
-  <!-- UI Stilleri (tek dosyada çalışsın diye gömdüm) -->
-  <style>
-    :root {
-      --bg:#0b0f19; --card:#121927; --muted:#9fb3c8; --text:#e6edf3; --accent:#4fc3f7;
-    }
-    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      background:linear-gradient(180deg,var(--bg),#111827); color:var(--text)}
-    header{max-width:960px;margin:28px auto 12px;padding:0 16px;text-align:center}
-    h1{font-size:28px;margin:0 0 8px}
-    p.lead{margin:0;color:var(--muted)}
-    .search-wrap{max-width:960px;margin:18px auto;padding:0 16px}
-    #search{width:100%;padding:14px 16px;border:1px solid #2a3a51;background:#0f1624;color:var(--text);
-      border-radius:12px;font-size:16px;outline:none}
-    #search:focus{border-color:var(--accent)}
-    .grid{max-width:960px;margin:14px auto;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px}
-    @media(min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
-    @media(min-width:880px){.grid{grid-template-columns:repeat(4,1fr)}}
-    .item{background:var(--card);border:1px solid #1f2a3c;border-radius:12px;padding:10px 12px;cursor:pointer;
-      transition:transform .12s ease, border-color .12s ease}
-    .item:hover{transform:translateY(-2px);border-color:#3b516f}
-    .item a{color:var(--text);text-decoration:none;display:block}
-    .muted{color:var(--muted);font-size:13px;margin-top:4px}
-    #player{max-width:960px;margin:14px auto;padding:0 16px}
-    .card{background:var(--card);border:1px solid #1f2a3c;border-radius:16px;padding:14px}
-    .title-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .title-row h2{margin:0;font-size:18px}
-    .share{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
-    .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid #2a3a51;background:#0f1624;
-      border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer;text-decoration:none;color:var(--text)}
-    .chip:hover{border-color:#3b516f}
-    iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}
-    footer{max-width:960px;margin:18px auto 36px;padding:0 16px;color:var(--muted);font-size:13px;text-align:center}
-    .seo-links{max-width:960px;margin:8px auto 0;padding:0 16px}
-    .seo-links a{color:var(--muted);text-decoration:none;margin-right:10px;font-size:12px}
-    .seo-links a:hover{color:#cfe6ff}
-  </style>
-
-  <!-- Fuse.js -->
+  <!-- Fuse.js (bulanık arama) -->
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 </head>
 <body>
-  <header>
+  <header class="container">
     <h1>🎂 İsme Özel Doğum Günü Şarkıları</h1>
     <p class="lead">İsmini yaz → videoyu aç → tek tıkla paylaş 🎉</p>
+
+    <input id="search" type="text" placeholder="İsmini yaz..." autocomplete="off" />
   </header>
 
-  <div class="search-wrap">
-    <input id="search" type="text" placeholder="İsmini yaz (örn: Ahmet, Zeynep)..." autocomplete="off" />
-  </div>
+  <main class="container">
+    <!-- Sonuçlar -->
+    <section>
+      <div id="grid" class="grid"></div>
+    </section>
 
-  <!-- Sonuçlar -->
-  <div id="results" class="grid" aria-live="polite"></div>
+    <!-- Oynatıcı kartı -->
+    <section id="player"></section>
+  </main>
 
-  <!-- Oynatıcı + Paylaşım -->
-  <div id="player"></div>
-
-  <!-- SEO için link havuzu (JS ile doldurulacak) -->
-  <nav id="seoLinks" class="seo-links" aria-label="İsim linkleri"></nav>
-
-  <footer>
-    <small>© <span id="y"></span> İsme Özel Doğum Günü Şarkıları ·
-      <a href="/" style="color:#cfe6ff">Anasayfa</a>
-    </small>
+  <footer class="container footnote">
+    <small>© <span id="yil"></span> İsme Özel Şarkılar</small>
   </footer>
 
-  <script>
-    // Yıl
-    document.getElementById('y').textContent = new Date().getFullYear();
+<script>
+/* -------------------- Yardımcılar -------------------- */
+const N = (sel, root=document) => root.querySelector(sel);
 
-    // Global state
-    let NAMES = [];
-    let fuse;
+function toEmbed(raw) {
+  if (!raw) return '';
+  let url = raw.trim();
 
-    // youtu.be / watch / shorts → embed dönüştürücü
-    function toEmbed(url) {
-      try {
-        url = url.trim();
-        if (url.includes('youtu.be/')) {
-          const id = url.split('youtu.be/')[1].split(/[?&]/)[0];
-          return 'https://www.youtube.com/embed/' + id;
-        }
-        if (url.includes('/shorts/')) {
-          const id = url.split('/shorts/')[1].split(/[?&]/)[0];
-          return 'https://www.youtube.com/embed/' + id;
-        }
-        const u = new URL(url);
-        if (u.hostname.includes('youtube.com') && u.searchParams.get('v')) {
-          return 'https://www.youtube.com/embed/' + u.searchParams.get('v');
-        }
-        return url; // fallback
-      } catch(e) {
-        return url;
-      }
-    }
+  // shorts -> watch
+  url = url.replace(/youtube\.com\/shorts\/([\w-]+)/, 'youtube.com/watch?v=$1');
 
-    // Arama sonuçlarını çiz
-    function drawResults(list) {
-      const box = document.getElementById('results');
-      box.innerHTML = '';
-      if (!list || list.length === 0) {
-        box.innerHTML = '<div class="muted">Sonuç bulunamadı</div>';
-        return;
-      }
-      list.forEach(({ item }) => {
-        const a = document.createElement('a');
-        a.href = '?name=' + encodeURIComponent(item.name);
-        a.className = 'item';
-        a.innerHTML = `
-          <span>${item.name}</span>
-          <div class="muted">YouTube’a git</div>
-        `;
-        a.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          selectName(item.name, true);
-        });
-        box.appendChild(a);
-      });
-    }
+  // youtu.be -> watch
+  url = url.replace(/youtu\.be\/([\w-]+)/, 'www.youtube.com/watch?v=$1');
 
-    // Paylaşım linklerini hazırla
-    function buildShareLinks(name, youtube) {
-      const pageUrl = location.origin + location.pathname + '?name=' + encodeURIComponent(name);
-      const text = `🎂 ${name} için isme özel doğum günü şarkısı:`;
-      const encodedText = encodeURIComponent(text + ' ' + pageUrl);
+  // watch?v= -> embed
+  url = url.replace(/watch\?v=/, 'embed/');
 
-      const whats = `https://api.whatsapp.com/send?text=${encodedText}`;
-      const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
-      const tg = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(text)}`;
-      const x = `https://x.com/intent/tweet?text=${encodedText}`;
-      const ins = `https://www.instagram.com/`; // Instagram dış paylaşım URL kabul etmez; profil açar.
+  // parametreleri sadeleştir
+  const u = new URL(url, 'https://www.youtube.com');
+  const base = u.origin + u.pathname;
+  return base + (base.includes('/embed/') ? '?rel=0' : '');
+}
 
-      return `
-        <div class="share" role="group" aria-label="Paylaşım">
-          <a class="chip" href="${whats}" target="_blank" rel="noopener">📱 WhatsApp</a>
-          <a class="chip" href="${fb}" target="_blank" rel="noopener">📘 Facebook</a>
-          <a class="chip" href="${tg}" target="_blank" rel="noopener">✈️ Telegram</a>
-          <a class="chip" href="${x}" target="_blank" rel="noopener">𝕏 Paylaş</a>
-          <a class="chip" href="${ins}" target="_blank" rel="noopener">📷 Instagram</a>
-          <a class="chip" href="${youtube}" target="_blank" rel="noopener">▶️ YouTube’da Aç</a>
-        </div>
-      `;
-    }
+function shareText(name, link) {
+  return `🎂 ${name} için doğum günü şarkısı:\n${link}\n#dogumgunu #ismeozel`;
+}
 
-    // Seçim + oynatıcıyı çiz
-    function selectName(name, pushUrl=false) {
-      const hit = NAMES.find(n => (n.name || '').toLowerCase() === name.toLowerCase());
-      if (!hit) return;
+function buildShareLinks(name, yt) {
+  const text = encodeURIComponent(shareText(name, yt));
+  const url  = encodeURIComponent(yt);
 
-      if (pushUrl) {
-        const newUrl = location.pathname + '?name=' + encodeURIComponent(hit.name);
-        history.pushState({ name: hit.name }, '', newUrl);
-      }
+  const wa = `https://wa.me/?text=${text}`;
+  const fb = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+  const tw = `https://twitter.com/intent/tweet?text=${text}`;
+  // Instagram'ın web paylaşımı yok; profil açtırıyoruz (kullanıcı düzenleyebilir)
+  const ig = `https://www.instagram.com/`;
 
-      const embed = toEmbed(hit.youtube || hit.youtube_url);
-      const player = document.getElementById('player');
-      player.innerHTML = `
-        <div class="card">
-          <div class="title-row">
-            <h2>🎵 ${hit.name} için Doğum Günü Şarkısı</h2>
-            <!-- paylaşım chipleri başlık satırında -->
-            ${buildShareLinks(hit.name, hit.youtube || hit.youtube_url)}
-          </div>
-          <iframe loading="lazy" src="${embed}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen title="${hit.name}"></iframe>
-        </div>
-      `;
-      // Üstteki paylaşım dışında, iframe altında da istersen gösterilebilir.
-    }
+  return `
+    <div class="share-row">
+      <a class="btn wa" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn fb" href="${fb}" target="_blank" rel="noopener">Facebook</a>
+      <a class="btn tw" href="${tw}" target="_blank" rel="noopener">X</a>
+      <a class="btn ig" href="${ig}" target="_blank" rel="noopener">Instagram</a>
+      <button class="btn ghost" onclick="copyShare('${encodeURIComponent(shareText(name, yt))}')">📋 Kopyala</button>
+    </div>
+  `;
+}
 
-    // ?name=... parametresini oku
-    function getQueryName() {
-      const q = new URLSearchParams(location.search);
-      return q.get('name');
-    }
+async function copyShare(encoded) {
+  const txt = decodeURIComponent(encoded);
+  try {
+    await navigator.clipboard.writeText(txt);
+    alert('Paylaşım metni kopyalandı!');
+  } catch {
+    // iOS fallback
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    ta.remove();
+    alert('Paylaşım metni kopyalandı!');
+  }
+}
 
-    // SEO için link havuzu (Google JS’i çalıştırsa da net olsun diye)
-    function drawSeoLinks(names) {
-      const wrap = document.getElementById('seoLinks');
-      wrap.innerHTML = names.slice(0, 300).map(n =>
-        `<a href="?name=${encodeURIComponent(n.name)}">${n.name}</a>`
-      ).join('');
-    }
+/* -------------------- Veri & Arama -------------------- */
+let NAMES = [];
+let fuse;
 
-    // Debounce
-    let tId;
-    function onSearch(e) {
-      const q = e.target.value.trim();
-      clearTimeout(tId);
-      tId = setTimeout(() => {
-        if (!q) { document.getElementById('results').innerHTML = ''; return; }
-        const res = fuse.search(q, { limit: 24 });
-        drawResults(res);
-      }, 120);
-    }
+async function loadNames() {
+  const res = await fetch('names.json', { cache: 'no-store' });
+  NAMES = await res.json();
 
-    // Yükleme
-    async function boot() {
-      try {
-        // names.json (alanlar: name, youtube veya youtube_url)
-        const res = await fetch('names.json', { cache: 'no-store' });
-        let data = await res.json();
+  fuse = new Fuse(NAMES, {
+    keys: ['name'],
+    threshold: 0.3,
+    ignoreLocation: true,
+    distance: 100,
+    isCaseSensitive: false
+  });
 
-        // Farklı alan adlarını normalize et
-        NAMES = data.map(x => ({
-          name: x.name?.trim(),
-          youtube: (x.youtube || x.youtube_url || '').trim()
-        })).filter(x => x.name && x.youtube);
+  // İlk yüklemede grid boş olsun
+  renderGrid([]);
 
-        // Fuse araması
-        fuse = new Fuse(NAMES, {
-          keys: ['name'],
-          threshold: 0.3,
-          ignoreLocation: true,
-          isCaseSensitive: false,
-          distance: 100
-        });
+  // URL parametresi ile otomatik seçim
+  const urlName = new URLSearchParams(location.search).get('name');
+  if (urlName) {
+    N('#search').value = urlName;
+    selectName(urlName, false);
+  }
+}
 
-        // SEO linkleri
-        drawSeoLinks(NAMES);
+function renderGrid(items) {
+  const grid = N('#grid');
+  grid.innerHTML = '';
 
-        // URL parametresi ile açılış
-        const qName = getQueryName();
-        if (qName) {
-          const exact = NAMES.find(n => n.name.toLowerCase() === qName.toLowerCase());
-          if (exact) selectName(exact.name, false);
-          else {
-            // Yakın sonuç göster
-            const resNear = fuse.search(qName, { limit: 12 });
-            drawResults(resNear);
-          }
-        }
-      } catch (e) {
-        console.error('names.json yüklenemedi:', e);
-      }
-    }
+  if (!items.length) return;
 
-    document.getElementById('search').addEventListener('input', onSearch);
-    window.addEventListener('popstate', (e) => {
-      const qName = getQueryName();
-      if (qName) selectName(qName, false);
-      else document.getElementById('player').innerHTML = '';
-    });
+  items.forEach(({ item }) => {
+    const card = document.createElement('a');
+    card.className = 'card link';
+    card.href = 'javascript:void(0)';
+    card.innerHTML = `
+      <div class="card-title">${item.name}</div>
+      <div class="card-sub">YouTube’a git</div>
+    `;
+    card.onclick = () => selectName(item.name, true);
+    grid.appendChild(card);
+  });
+}
 
-    boot();
-  </script>
+/* -------------------- Seçim + Oynatıcı + Kaydırma -------------------- */
+function selectName(name, pushUrl=false) {
+  const hit = NAMES.find(n => (n.name || '').toLowerCase() === name.toLowerCase());
+  if (!hit) return;
+
+  if (pushUrl) {
+    const newUrl = location.pathname + '?name=' + encodeURIComponent(hit.name);
+    history.pushState({ name: hit.name }, '', newUrl);
+  }
+
+  const yt = hit.youtube || hit.youtube_url;
+  const embed = toEmbed(yt);
+  const player = N('#player');
+  player.innerHTML = `
+    <div class="card" id="playerCard">
+      <div class="title-row">
+        <h2>🎵 ${hit.name} için Doğum Günü Şarkısı</h2>
+        ${buildShareLinks(hit.name, yt)}
+      </div>
+      <div class="video-wrap">
+        <iframe loading="lazy" src="${embed}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen title="${hit.name}"></iframe>
+      </div>
+    </div>
+  `;
+
+  // Mobilde videoya yumuşak kaydır
+  setTimeout(() => {
+    const el = N('#playerCard') || player;
+    const y = el.getBoundingClientRect().top + window.pageYOffset - 12;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }, 50);
+}
+
+/* -------------------- Olaylar -------------------- */
+let tId;
+N('#search').addEventListener('input', (e) => {
+  const q = e.target.value.trim();
+  clearTimeout(tId);
+  tId = setTimeout(() => {
+    if (!q) { renderGrid([]); return; }
+    const res = fuse.search(q, { limit: 20 });
+    renderGrid(res);
+  }, 120);
+});
+
+N('#search').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (!q) return;
+    const [first] = fuse.search(q, { limit: 1 });
+    if (first) selectName(first.item.name, true);
+  }
+});
+
+/* -------------------- Başlat -------------------- */
+N('#yil').textContent = new Date().getFullYear();
+loadNames();
+</script>
 </body>
 </html>
